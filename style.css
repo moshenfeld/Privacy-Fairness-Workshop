@@ -1,0 +1,157 @@
+/* Reset and Base Styles */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif; /* Cleaner font stack */
+    line-height: 1.7; /* Slightly more spacing */
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa; /* Lighter background */
+    color: #495057; /* Softer text color */
+}
+
+.container {
+    width: 85%; /* Slightly wider */
+    max-width: 1100px; /* Max width for large screens */
+    margin: 20px auto; /* Add top/bottom margin */
+    overflow: hidden;
+}
+
+/* Header */
+header {
+    background: #4a69bd; /* New blue */
+    color: #ffffff;
+    padding: 25px 0; /* Adjusted padding */
+    min-height: auto; /* Remove min-height */
+    border-bottom: #1e90ff 4px solid; /* Slightly lighter blue accent */
+    text-align: center; /* Center align content */
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.2em; /* Larger title */
+    font-weight: 500; /* Slightly lighter weight */
+}
+
+/* Navigation */
+nav {
+    background: #ffffff; /* White background */
+    padding: 15px 0;
+    text-align: center;
+    border-bottom: 1px solid #dee2e6; /* Lighter border */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow */
+    margin-bottom: 30px; /* Space below nav */
+}
+
+nav ul {
+    padding: 0;
+    margin: 0; /* Remove default margin */
+    list-style: none;
+}
+
+nav ul li {
+    display: inline;
+    padding: 0 25px; /* Increased spacing */
+}
+
+nav a {
+    color: #4a69bd; /* Match header blue */
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.1em;
+    transition: color 0.3s ease; /* Smooth hover transition */
+}
+
+nav a:hover, nav a:focus {
+    color: #1e90ff; /* Accent blue on hover */
+    text-decoration: underline;
+}
+
+/* Main Content */
+main {
+    padding: 30px; /* More padding */
+    background: #ffffff;
+    margin-top: 0; /* Removed top margin as nav has bottom margin */
+    border-radius: 5px; /* Slightly rounded corners */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Subtle shadow */
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 25px;
+    margin-top: 40px; /* More space above footer */
+    color: #ffffff;
+    background-color: #4a69bd; /* Match header blue */
+    font-size: 0.9em;
+}
+
+/* Headings */
+h1, h2, h3 {
+    color: #343a40; /* Darker grey for headings */
+    margin-bottom: 15px;
+}
+
+h2 {
+    border-bottom: 1px solid #eee; /* Separator line for H2 */
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+}
+
+/* Table Styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 25px 0; /* More space around table */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06); /* Subtle shadow on table */
+}
+
+th, td {
+  border: 1px solid #dee2e6; /* Lighter border */
+  padding: 12px 15px; /* More padding */
+  text-align: left;
+}
+
+th {
+  background-color: #e9ecef; /* Light grey header */
+  color: #495057;
+  font-weight: 600; /* Bolder header text */
+}
+
+tbody tr:nth-of-type(even) {
+    background-color: #f8f9fa; /* Subtle striping */
+}
+
+tbody tr:hover {
+    background-color: #e9ecef; /* Hover effect */
+}
+
+/* Links */
+a {
+    color: #1e90ff; /* Accent blue for links */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Utilities (if needed) */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 1rem; }
+
+/* Basic styling for tables if needed later */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+} 

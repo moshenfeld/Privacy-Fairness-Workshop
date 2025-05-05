@@ -15,9 +15,52 @@ body {
     overflow: hidden;
 }
 
+/* Custom Variables and Animations */
+:root {
+    --primary: #4a69bd;
+    --accent: #1e90ff;
+    --bg-color: #f8f9fa;
+    --text-color: #495057;
+    --heading-color: #343a40;
+    --header-gradient: linear-gradient(135deg, #4a69bd, #1e90ff);
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 1s ease both;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.6em 1.2em;
+    background-color: var(--accent);
+    color: #ffffff;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+    background-color: #187bcd;
+    transform: translateY(-2px);
+}
+
 /* Header */
 header {
-    background: #4a69bd; /* New blue */
+    background: var(--header-gradient);
+    background-size: 400% 400%;
+    animation: gradientBG 10s ease infinite;
     color: #ffffff;
     padding: 25px 0; /* Adjusted padding */
     min-height: auto; /* Remove min-height */
@@ -61,8 +104,10 @@ nav a {
 }
 
 nav a:hover, nav a:focus {
-    color: #1e90ff; /* Accent blue on hover */
-    text-decoration: underline;
+    color: var(--accent);
+    background-color: rgba(30,144,255,0.1);
+    border-radius: 4px;
+    text-decoration: none;
 }
 
 /* Main Content */

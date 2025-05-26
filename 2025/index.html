@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2025 Workshop - Israeli Privacy and Fairness Workshop</title>
     <link rel="stylesheet" href="../style.css"> <!-- Link to the main CSS file -->
+    
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     <header class="fade-in">
@@ -37,8 +53,9 @@
         <!-- Add registration link or details here -->
 
         <h3>Schedule</h3>
-        <p>The detailed schedule will be announced soon.</p>
-        <!-- Add schedule details later -->
+        <div id="schedule-container">
+            <p>Loading schedule...</p>
+        </div>
 
         <h3>Organizers</h3>
         <p>Katrina Ligett and Moshe Shenfeld</p>
@@ -53,5 +70,185 @@
     <footer class="fade-in">
         <p>&copy; Israeli Privacy and Fairness Workshop</p>
     </footer>
+
+    <script>
+        // Simple but robust CSV parser with better error handling
+        function parseCSV(text) {
+            try {
+                const result = [];
+                const lines = text.trim().split('\n');
+                if (lines.length === 0) return result;
+                
+                const headers = lines[0].split(',').map(h => h.trim());
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    // Use a more reliable parsing approach for complex CSV
+                    const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+                    const fields = line.split(regex);
+                    
+                    const row = {};
+                    headers.forEach((header, idx) => {
+                        let value = (fields[idx] || '').trim();
+                        // Remove surrounding quotes if they exist
+                        if (value.startsWith('"') && value.endsWith('"')) {
+                            value = value.slice(1, -1);
+                            // Handle escaped quotes
+                            value = value.replace(/""/g, '"');
+                        }
+                        row[header] = value;
+                    });
+                    result.push(row);
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('CSV parsing error:', error);
+                return [];
+            }
+        }
+
+        // Function to create schedule HTML with better error handling
+        function createScheduleHTML(scheduleData) {
+            try {
+                let html = '<div class="schedule">';
+                
+                scheduleData.forEach((item, index) => {
+                    // Safely access properties with fallbacks
+                    const speaker = (item.speaker || '').toString();
+                    const title = (item.title || '').toString();
+                    const abstract = (item.abstract || '').toString();
+                    const bio = (item.bio || '').toString();
+                    const startTime = (item.start_time || '').toString();
+                    const endTime = (item.end_time || '').toString();
+                    const expandable = (item.expandable || '').toString();
+                    
+                    console.log(`Item ${index}:`, {
+                        speaker: speaker,
+                        expandable: expandable,
+                        hasAbstract: !!abstract.trim(),
+                        hasBio: !!bio.trim(),
+                        abstractLength: abstract.length,
+                        bioLength: bio.length
+                    });
+                    
+                    const isBreak = speaker.toLowerCase().includes('break') || 
+                                  speaker.toLowerCase().includes('lunch') ||
+                                  speaker.toLowerCase().includes('registration') ||
+                                  !speaker.trim();
+                    
+                    // Check if item should be expandable
+                    const isExpandable = expandable.toLowerCase() === 'true' && !isBreak;
+                    const hasContent = !!(abstract.trim() || bio.trim());
+                    const isEmpty = isExpandable && !hasContent;
+                    
+                    console.log(`Item ${index} expandable:`, isExpandable, 'isBreak:', isBreak, 'has content:', hasContent, 'isEmpty:', isEmpty, 'csv expandable:', expandable);
+                    
+                    let itemClasses = isBreak ? 'break-item' : 'talk-item';
+                    if (isEmpty) itemClasses += ' empty-expandable';
+                    
+                    html += `
+                        <div class="schedule-item ${itemClasses}" ${isExpandable ? `onclick="toggleDetails(${index})"` : ''}>
+                            <div class="schedule-header">
+                                <div class="time">${startTime} - ${endTime}</div>
+                                <div class="speaker-title">
+                                    <div class="speaker">${speaker}</div>
+                                    <div class="title">${title}</div>
+                                </div>
+                                ${isExpandable ? '<div class="expand-icon">[+]</div>' : ''}
+                            </div>
+                            ${isExpandable ? `
+                            <div class="schedule-details" id="details-${index}" style="display: none;">
+                                ${abstract.trim() ? `
+                                <div class="abstract">
+                                    <h4>Abstract</h4>
+                                    <p>${abstract}</p>
+                                </div>
+                                ` : ''}
+                                ${bio.trim() && bio !== 'N/A' ? `
+                                <div class="bio">
+                                    <h4>Speaker Bio</h4>
+                                    <p>${bio}</p>
+                                </div>
+                                ` : ''}
+                                ${!abstract.trim() && (!bio.trim() || bio === 'N/A') ? `
+                                <div class="no-content">
+                                    <p><em>Abstract and bio coming soon...</em></p>
+                                </div>
+                                ` : ''}
+                            </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                return html;
+            } catch (error) {
+                console.error('Error creating schedule HTML:', error);
+                return '<div class="schedule"><p>Error displaying schedule. Please refresh the page.</p></div>';
+            }
+        }
+
+        // Function to toggle details visibility with error handling
+        function toggleDetails(index) {
+            try {
+                const details = document.getElementById(`details-${index}`);
+                const icon = details.parentElement.querySelector('.expand-icon');
+                
+                if (!details || !icon) {
+                    console.error('Could not find details or icon element for index:', index);
+                    return;
+                }
+                
+                if (details.style.display === 'none') {
+                    details.style.display = 'block';
+                    icon.textContent = '[-]';
+                    details.parentElement.classList.add('expanded');
+                    
+                    // Re-render MathJax for the newly shown content
+                    if (window.MathJax) {
+                        MathJax.typesetPromise([details]).catch((err) => console.log('MathJax error:', err));
+                    }
+                } else {
+                    details.style.display = 'none';
+                    icon.textContent = '[+]';
+                    details.parentElement.classList.remove('expanded');
+                }
+            } catch (error) {
+                console.error('Error toggling details for index:', index, error);
+            }
+        }
+
+        // Load and display schedule
+        async function loadSchedule() {
+            try {
+                const response = await fetch('schedule.csv');
+                if (!response.ok) {
+                    throw new Error(`Failed to load schedule: ${response.status}`);
+                }
+                
+                const csvText = await response.text();
+                const scheduleData = parseCSV(csvText);
+                const container = document.getElementById('schedule-container');
+                container.innerHTML = createScheduleHTML(scheduleData);
+                
+                // Render LaTeX math after content is loaded
+                if (window.MathJax) {
+                    MathJax.typesetPromise([container]).catch((err) => console.log('MathJax error:', err));
+                }
+                
+            } catch (error) {
+                console.error('Error loading schedule:', error);
+                document.getElementById('schedule-container').innerHTML = 
+                    '<p>Schedule currently unavailable. Please ensure the CSV file is accessible and try again later.</p>';
+            }
+        }
+
+        // Load schedule when page loads
+        document.addEventListener('DOMContentLoaded', loadSchedule);
+    </script>
 </body>
 </html> 

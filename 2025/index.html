@@ -248,26 +248,72 @@
             }
         }
 
-        // Load and display schedule from external TXT file (CSV format)
-        async function loadSchedule() {
-            console.log('loadSchedule function called');
+        // Load schedule with retry mechanism
+        async function loadScheduleWithRetry(retryCount = 0) {
+            const maxRetries = 3;
             try {
-                const response = await fetch('schedule.csv');
+                await loadSchedule();
+            } catch (error) {
+                console.error(`Schedule load attempt ${retryCount + 1} failed:`, error);
+                if (retryCount < maxRetries) {
+                    console.log(`Retrying in ${(retryCount + 1) * 500}ms...`);
+                    setTimeout(() => loadScheduleWithRetry(retryCount + 1), (retryCount + 1) * 500);
+                } else {
+                    console.error('All retry attempts failed');
+                    const container = document.getElementById('schedule-container');
+                    if (container) {
+                        container.innerHTML = 
+                            `<p>Schedule currently unavailable after ${maxRetries} attempts.</p>
+                             <p><button onclick="loadScheduleWithRetry(0)">Try Again</button></p>`;
+                    }
+                }
+            }
+        }
+
+        // Load and display schedule from external CSV file
+        async function loadSchedule() {
+            console.log('=== loadSchedule function called ===');
+            console.log('Document ready state:', document.readyState);
+            console.log('MathJax available:', !!window.MathJax);
+            
+            const container = document.getElementById('schedule-container');
+            if (!container) {
+                console.error('Schedule container not found!');
+                return;
+            }
+            
+            // Show loading state
+            container.innerHTML = '<p>Loading schedule...</p>';
+            
+            try {
+                console.log('Fetching schedule.csv...');
+                const response = await fetch('schedule.csv', {
+                    cache: 'no-cache', // Prevent caching issues
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                console.log('Fetch response status:', response.status);
+                console.log('Fetch response ok:', response.ok);
+                
                 if (!response.ok) {
-                    throw new Error(`Failed to load schedule: ${response.status}`);
+                    throw new Error(`Failed to load schedule: ${response.status} ${response.statusText}`);
                 }
                 
                 const csvText = await response.text();
                 console.log('CSV text retrieved, length:', csvText.length);
                 console.log('First 100 characters:', csvText.substring(0, 100));
                 
+                if (!csvText.trim()) {
+                    throw new Error('CSV file is empty');
+                }
+                
                 const scheduleData = parseCSV(csvText);
                 console.log('Schedule data parsed, items:', scheduleData.length);
                 
-                const container = document.getElementById('schedule-container');
-                if (!container) {
-                    console.error('Schedule container not found!');
-                    return;
+                if (scheduleData.length === 0) {
+                    throw new Error('No schedule data parsed from CSV');
                 }
                 
                 console.log('Creating HTML...');
@@ -279,18 +325,26 @@
                 
                 // Render LaTeX math after content is loaded
                 if (window.MathJax) {
+                    console.log('Rendering MathJax...');
                     MathJax.typesetPromise([container]).catch((err) => console.log('MathJax error:', err));
+                } else {
+                    console.log('MathJax not available yet');
                 }
                 
             } catch (error) {
                 console.error('Error loading schedule:', error);
-                document.getElementById('schedule-container').innerHTML = 
-                    '<p>Schedule currently unavailable. Please ensure the CSV file is accessible and try again later.</p>';
+                console.error('Error stack:', error.stack);
+                container.innerHTML = 
+                    `<p>Schedule currently unavailable. Error: ${error.message}</p>
+                     <p><small>Check browser console for details.</small></p>`;
             }
         }
 
         // Load schedule when page loads
-        document.addEventListener('DOMContentLoaded', loadSchedule);
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOMContentLoaded event fired');
+            loadScheduleWithRetry(0);
+        });
     </script>
 </body>
 </html> 

@@ -72,44 +72,6 @@
     </footer>
 
     <script>
-        // Simple but robust CSV parser with better error handling
-        function parseCSV(text) {
-            try {
-                const result = [];
-                const lines = text.trim().split('\n');
-                if (lines.length === 0) return result;
-                
-                const headers = lines[0].split(',').map(h => h.trim());
-                
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    
-                    // Use a more reliable parsing approach for complex CSV
-                    const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-                    const fields = line.split(regex);
-                    
-                    const row = {};
-                    headers.forEach((header, idx) => {
-                        let value = (fields[idx] || '').trim();
-                        // Remove surrounding quotes if they exist
-                        if (value.startsWith('"') && value.endsWith('"')) {
-                            value = value.slice(1, -1);
-                            // Handle escaped quotes
-                            value = value.replace(/""/g, '"');
-                        }
-                        row[header] = value;
-                    });
-                    result.push(row);
-                }
-                
-                return result;
-            } catch (error) {
-                console.error('CSV parsing error:', error);
-                return [];
-            }
-        }
-
         // Function to create schedule HTML with better error handling
         function createScheduleHTML(scheduleData) {
             try {
@@ -222,10 +184,48 @@
             }
         }
 
-        // Load and display schedule
+        // Simple but robust CSV parser with better error handling
+        function parseCSV(text) {
+            try {
+                const result = [];
+                const lines = text.trim().split('\n');
+                if (lines.length === 0) return result;
+                
+                const headers = lines[0].split(',').map(h => h.trim());
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    // Use a more reliable parsing approach for complex CSV
+                    const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+                    const fields = line.split(regex);
+                    
+                    const row = {};
+                    headers.forEach((header, idx) => {
+                        let value = (fields[idx] || '').trim();
+                        // Remove surrounding quotes if they exist
+                        if (value.startsWith('"') && value.endsWith('"')) {
+                            value = value.slice(1, -1);
+                            // Handle escaped quotes
+                            value = value.replace(/""/g, '"');
+                        }
+                        row[header] = value;
+                    });
+                    result.push(row);
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('CSV parsing error:', error);
+                return [];
+            }
+        }
+
+        // Load and display schedule from TXT file (CSV format)
         async function loadSchedule() {
             try {
-                const response = await fetch('schedule.csv');
+                const response = await fetch('schedule.txt');
                 if (!response.ok) {
                     throw new Error(`Failed to load schedule: ${response.status}`);
                 }

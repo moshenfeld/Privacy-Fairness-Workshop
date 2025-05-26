@@ -6,23 +6,7 @@
     <title>Israeli Privacy and Fairness Workshop</title>
     <link rel="stylesheet" href="style.css">
     
-    <!-- MathJax for LaTeX rendering -->
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true,
-                processEnvironments: true
-            },
-            options: {
-                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-            }
-        };
-    </script>
-    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    
-    <!-- Workshop Configuration -->
+    <!-- Workshop Configuration for dynamic links -->
     <script src="components/workshop-config.js"></script>
 </head>
 <body>
@@ -33,21 +17,33 @@
     <nav>
          <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="2025/index.html">Upcoming Workshop</a></li>
+            <li><a href="#" id="upcoming-workshop-link">Upcoming Workshop</a></li>
             <li><a href="past.html">Past Workshops</a></li>
         </ul>
     </nav>
     </div>
     <div class="container fade-in">
     <main>
-        <div id="workshop-header">
-            <p>Loading workshop information...</p>
+        <h2>About the Workshop</h2>
+        
+        <p>The Israeli Privacy and Fairness Workshop is an annual gathering that brings together researchers, students, and practitioners from Israel's vibrant academic community working at the intersection of privacy and fairness in machine learning and data science.</p>
+    
+        
+        <div class="workshop-cta" style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 30px 0; text-align: center;">
+            <h3 id="current-workshop-title">Current Workshop</h3>
+            <p id="current-workshop-description">Loading workshop information...</p>
+            <div style="margin-top: 15px;">
+                <a href="#" id="registration-button" class="btn" style="margin-right: 10px;">Register &rarr;</a>
+                <a href="#" id="schedule-button" class="btn">View Schedule &rarr;</a>
+            </div>
         </div>
-
-        <div id="workshop-content">
-            <p>Loading content...</p>
-        </div>
-
+        
+        <h3>Organizers</h3>
+        <p>Katrina Ligett and Moshe Shenfeld</p>
+        
+        <h3>Contact</h3>
+        <p>For inquiries, please contact: moshe.shenfeld [at] mail.huji.ac.il</p>
+        
         <p><a href="past.html">View Past Workshops &rarr;</a></p>
     </main>
     </div>
@@ -56,48 +52,53 @@
     </footer>
 
     <script>
-        // Load workshop content based on configuration
-        async function loadWorkshopContent() {
+        // Update dynamic content based on current workshop configuration
+        document.addEventListener('DOMContentLoaded', () => {
             try {
                 const workshopInfo = getCurrentWorkshopInfo();
-                const headerContainer = document.getElementById('workshop-header');
-                const contentContainer = document.getElementById('workshop-content');
+                const currentYear = WORKSHOP_CONFIG.currentYear;
+                const currentPhase = WORKSHOP_CONFIG.currentPhase;
                 
-                // Update header with workshop info
-                let headerHTML = `<h2>Upcoming Workshop: ${workshopInfo.date}</h2>`;
-                headerHTML += `<p><strong>Location:</strong> ${workshopInfo.location}</p>`;
+                // Update navigation link
+                const upcomingLink = document.getElementById('upcoming-workshop-link');
+                upcomingLink.href = `${currentYear}/index.html`;
                 
-                if (workshopInfo.registrationUrl) {
-                    headerHTML += `<p><strong>Registration is now open!</strong></p>`;
-                    headerHTML += `<p><a href="${workshopInfo.registrationUrl}" target="_blank" rel="noopener noreferrer" class="btn">Register Now &rarr;</a></p>`;
-                }
+                // Update workshop call-to-action section
+                const title = document.getElementById('current-workshop-title');
+                const description = document.getElementById('current-workshop-description');
+                const registrationButton = document.getElementById('registration-button');
+                const scheduleButton = document.getElementById('schedule-button');
                 
-                headerContainer.innerHTML = headerHTML;
-                
-                // Load appropriate content based on phase
-                const contentHTML = await loadComponent(WORKSHOP_CONFIG.currentPhase);
-                contentContainer.innerHTML = contentHTML;
-                
-                // If we loaded a schedule component, ensure scripts execute
-                if (WORKSHOP_CONFIG.currentPhase === 'schedule') {
-                    // Execute any scripts in the loaded content
-                    const scripts = contentContainer.querySelectorAll('script');
-                    scripts.forEach(script => {
-                        const newScript = document.createElement('script');
-                        newScript.textContent = script.textContent;
-                        document.head.appendChild(newScript);
-                    });
+                if (currentPhase === 'call-for-talks') {
+                    title.textContent = `${currentYear} Workshop - Call for Talks`;
+                    description.innerHTML = `We are currently accepting submissions for talks at our ${currentYear} workshop. Share your latest research in privacy and fairness!`;
+                    registrationButton.textContent = 'Submit Your Talk →';
+                    registrationButton.href = `${currentYear}/index.html`;
+                    scheduleButton.style.display = 'none'; // Hide schedule button during call for talks
+                } else if (currentPhase === 'schedule') {
+                    title.textContent = `${currentYear} Workshop - ${workshopInfo.date}`;
+                    description.innerHTML = `Join us at <strong>${workshopInfo.location}</strong> for our ${currentYear} workshop.`;
+                    registrationButton.textContent = 'Register →';
+                    registrationButton.href = `${currentYear}/index.html#registration`;
+                    scheduleButton.textContent = 'View Schedule →';
+                    scheduleButton.href = `${currentYear}/index.html#schedule`;
+                    scheduleButton.style.display = 'inline-block'; // Show schedule button
+                } else {
+                    title.textContent = `${currentYear} Workshop`;
+                    description.innerHTML = `Information about our ${currentYear} workshop will be available soon.`;
+                    registrationButton.textContent = 'Learn More →';
+                    registrationButton.href = `${currentYear}/index.html`;
+                    scheduleButton.style.display = 'none'; // Hide schedule button
                 }
                 
             } catch (error) {
-                console.error('Error loading workshop content:', error);
-                document.getElementById('workshop-header').innerHTML = '<h2>Workshop Information Currently Unavailable</h2>';
-                document.getElementById('workshop-content').innerHTML = '<p>Please try again later.</p>';
+                console.error('Error loading workshop info:', error);
+                // Fallback content
+                document.getElementById('current-workshop-description').textContent = 'Workshop information will be updated soon.';
+                document.getElementById('registration-button').href = '2025/index.html';
+                document.getElementById('schedule-button').href = '2025/index.html';
             }
-        }
-        
-        // Load content when page is ready
-        document.addEventListener('DOMContentLoaded', loadWorkshopContent);
+        });
     </script>
 </body>
 </html> 

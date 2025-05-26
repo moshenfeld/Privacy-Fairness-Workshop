@@ -1,0 +1,302 @@
+<!-- 2025 Workshop Schedule Component -->
+<div id="schedule-container">
+    <p>Loading schedule... (JavaScript should replace this)</p>
+</div>
+
+<script>
+    // Function to create schedule HTML with better error handling
+    function createScheduleHTML(scheduleData) {
+        try {
+            let html = '<div class="schedule">';
+            
+            scheduleData.forEach((item, index) => {
+                // Safely access properties with fallbacks
+                const speaker = (item.speaker || '').toString();
+                const title = (item.title || '').toString();
+                const abstract = (item.abstract || '').toString();
+                const bio = (item.bio || '').toString();
+                const startTime = (item.start_time || '').toString();
+                const endTime = (item.end_time || '').toString();
+                const expandable = (item.expandable || '').toString();
+                
+                console.log(`Item ${index}:`, {
+                    speaker: speaker,
+                    expandable: expandable,
+                    hasAbstract: !!abstract.trim(),
+                    hasBio: !!bio.trim(),
+                    abstractLength: abstract.length,
+                    bioLength: bio.length
+                });
+                
+                const isBreak = speaker.toLowerCase().includes('break') || 
+                              speaker.toLowerCase().includes('lunch') ||
+                              speaker.toLowerCase().includes('registration') ||
+                              !speaker.trim();
+                
+                // Check if item should be expandable
+                const isExpandable = expandable.toLowerCase() === 'true' && !isBreak;
+                const hasContent = !!(abstract.trim() || bio.trim());
+                const isEmpty = isExpandable && !hasContent;
+                
+                console.log(`Item ${index} expandable:`, isExpandable, 'isBreak:', isBreak, 'has content:', hasContent, 'isEmpty:', isEmpty, 'csv expandable:', expandable);
+                
+                let itemClasses = isBreak ? 'break-item' : 'talk-item';
+                if (isEmpty) itemClasses += ' empty-expandable';
+                
+                html += `
+                    <div class="schedule-item ${itemClasses}" ${isExpandable ? `onclick="toggleDetails(${index})"` : ''}>
+                        <div class="schedule-header">
+                            <div class="time">${startTime} - ${endTime}</div>
+                            <div class="speaker-title">
+                                <div class="speaker">${speaker}</div>
+                                <div class="title">${title}</div>
+                            </div>
+                            ${isExpandable ? '<div class="expand-icon">[+]</div>' : ''}
+                        </div>
+                        ${isExpandable ? `
+                        <div class="schedule-details" id="details-${index}" style="display: none;">
+                            ${abstract.trim() ? `
+                            <div class="abstract">
+                                <h4>Abstract</h4>
+                                <p>${abstract}</p>
+                            </div>
+                            ` : ''}
+                            ${bio.trim() && bio !== 'N/A' ? `
+                            <div class="bio">
+                                <h4>Speaker Bio</h4>
+                                <p>${bio}</p>
+                            </div>
+                            ` : ''}
+                            ${!abstract.trim() && (!bio.trim() || bio === 'N/A') ? `
+                            <div class="no-content">
+                                <p><em>Abstract and bio coming soon...</em></p>
+                            </div>
+                            ` : ''}
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            return html;
+        } catch (error) {
+            console.error('Error creating schedule HTML:', error);
+            return '<div class="schedule"><p>Error displaying schedule. Please refresh the page.</p></div>';
+        }
+    }
+
+    // Function to toggle details visibility with error handling
+    function toggleDetails(index) {
+        try {
+            const details = document.getElementById(`details-${index}`);
+            const icon = details.parentElement.querySelector('.expand-icon');
+            
+            if (!details || !icon) {
+                console.error('Could not find details or icon element for index:', index);
+                return;
+            }
+            
+            if (details.style.display === 'none') {
+                details.style.display = 'block';
+                icon.textContent = '[-]';
+                details.parentElement.classList.add('expanded');
+                
+                // Re-render MathJax for the newly shown content
+                if (window.MathJax) {
+                    MathJax.typesetPromise([details]).catch((err) => console.log('MathJax error:', err));
+                }
+            } else {
+                details.style.display = 'none';
+                icon.textContent = '[+]';
+                details.parentElement.classList.remove('expanded');
+            }
+        } catch (error) {
+            console.error('Error toggling details for index:', index, error);
+        }
+    }
+
+    // More robust CSV parser that handles quoted fields with commas
+    function parseCSV(text) {
+        try {
+            const result = [];
+            const lines = text.trim().split('\n');
+            if (lines.length === 0) return result;
+            
+            // Parse CSV line considering quotes
+            function parseLine(line) {
+                const fields = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    const nextChar = line[i + 1];
+                    
+                    if (char === '"') {
+                        if (inQuotes && nextChar === '"') {
+                            // Handle escaped quotes
+                            current += '"';
+                            i++; // Skip next quote
+                        } else {
+                            // Toggle quote mode
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (char === ',' && !inQuotes) {
+                        fields.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                fields.push(current.trim());
+                return fields;
+            }
+            
+            const headers = parseLine(lines[0]);
+            console.log('CSV Headers:', headers);
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const fields = parseLine(line);
+                const row = {};
+                
+                headers.forEach((header, idx) => {
+                    row[header.trim()] = fields[idx] || '';
+                });
+                
+                result.push(row);
+            }
+            
+            console.log('CSV parsed successfully:', result.length, 'rows');
+            return result;
+        } catch (error) {
+            console.error('CSV parsing error:', error);
+            return [];
+        }
+    }
+
+    // Determine the correct CSV path based on current page location
+    function getCSVPath() {
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('/2025/')) {
+            // We're on the 2025 page, so schedule.csv is in the same directory
+            return 'schedule.csv';
+        } else {
+            // We're on the main page, so need to go into the 2025 directory
+            return '2025/schedule.csv';
+        }
+    }
+
+    // Load schedule with retry mechanism
+    async function loadScheduleWithRetry(retryCount = 0, csvPath = null) {
+        if (!csvPath) {
+            csvPath = getCSVPath();
+        }
+        const maxRetries = 3;
+        try {
+            await loadSchedule(csvPath);
+        } catch (error) {
+            console.error(`Schedule load attempt ${retryCount + 1} failed:`, error);
+            if (retryCount < maxRetries) {
+                console.log(`Retrying in ${(retryCount + 1) * 500}ms...`);
+                setTimeout(() => loadScheduleWithRetry(retryCount + 1, csvPath), (retryCount + 1) * 500);
+            } else {
+                console.error('All retry attempts failed');
+                const container = document.getElementById('schedule-container');
+                if (container) {
+                    container.innerHTML = 
+                        `<p>Schedule currently unavailable after ${maxRetries} attempts.</p>
+                         <p><button onclick="loadScheduleWithRetry(0, '${csvPath}')">Try Again</button></p>`;
+                }
+            }
+        }
+    }
+
+    // Load and display schedule from external CSV file
+    async function loadSchedule(csvPath = null) {
+        if (!csvPath) {
+            csvPath = getCSVPath();
+        }
+        console.log('=== loadSchedule function called ===');
+        console.log('CSV path:', csvPath);
+        console.log('Document ready state:', document.readyState);
+        console.log('MathJax available:', !!window.MathJax);
+        
+        const container = document.getElementById('schedule-container');
+        if (!container) {
+            console.error('Schedule container not found!');
+            return;
+        }
+        
+        // Show loading state
+        container.innerHTML = '<p>Loading schedule...</p>';
+        
+        try {
+            console.log('Fetching', csvPath, '...');
+            const response = await fetch(csvPath, {
+                cache: 'no-cache', // Prevent caching issues
+                headers: {
+                    'Cache-Control': 'no-cache'
+                }
+            });
+            
+            console.log('Fetch response status:', response.status);
+            console.log('Fetch response ok:', response.ok);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to load schedule: ${response.status} ${response.statusText}`);
+            }
+            
+            const csvText = await response.text();
+            console.log('CSV text retrieved, length:', csvText.length);
+            console.log('First 100 characters:', csvText.substring(0, 100));
+            
+            if (!csvText.trim()) {
+                throw new Error('CSV file is empty');
+            }
+            
+            const scheduleData = parseCSV(csvText);
+            console.log('Schedule data parsed, items:', scheduleData.length);
+            
+            if (scheduleData.length === 0) {
+                throw new Error('No schedule data parsed from CSV');
+            }
+            
+            console.log('Creating HTML...');
+            const html = createScheduleHTML(scheduleData);
+            console.log('HTML created, length:', html.length);
+            
+            container.innerHTML = html;
+            console.log('HTML inserted into container');
+            
+            // Render LaTeX math after content is loaded
+            if (window.MathJax) {
+                console.log('Rendering MathJax...');
+                MathJax.typesetPromise([container]).catch((err) => console.log('MathJax error:', err));
+            } else {
+                console.log('MathJax not available yet');
+            }
+            
+        } catch (error) {
+            console.error('Error loading schedule:', error);
+            console.error('Error stack:', error.stack);
+            container.innerHTML = 
+                `<p>Schedule currently unavailable. Error: ${error.message}</p>
+                 <p><small>Check browser console for details.</small></p>`;
+        }
+    }
+
+    // Auto-load schedule when component is loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOMContentLoaded event fired in schedule component');
+            loadScheduleWithRetry(0);
+        });
+    } else {
+        // DOM is already loaded
+        loadScheduleWithRetry(0);
+    }
+</script>

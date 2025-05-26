@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Israeli Privacy and Fairness Workshop</title>
     <link rel="stylesheet" href="style.css">
+    
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <!-- Workshop Configuration -->
+    <script src="components/workshop-config.js"></script>
 </head>
 <body>
     <header class="fade-in">
@@ -21,14 +40,13 @@
     </div>
     <div class="container fade-in">
     <main>
-        <h2>Upcoming Workshop: Thursday, June 12th, 2025</h2>
-        <p><strong>Location:</strong> Hebrew University of Jerusalem</p>
+        <div id="workshop-header">
+            <p>Loading workshop information...</p>
+        </div>
 
-        <p><strong>Registration is now open!</strong></p>
-        <p><a href="https://docs.google.com/forms/d/1HTOkuA5JB6wycBon2YZp5w2nuCLmZm8AmXu3AA4WDtk/viewform" target="_blank" rel="noopener noreferrer" class="btn">Register Now &rarr;</a></p>
-
-        <h3>Call for Talks</h3>
-        <p>We also invite submissions of talk proposals on topics related to data privacy and algorithmic fairness. Please submit your proposal via the registration form, or contact us at moshe.shenfeld at mail.huji.ac.il .</p>
+        <div id="workshop-content">
+            <p>Loading content...</p>
+        </div>
 
         <p><a href="past.html">View Past Workshops &rarr;</a></p>
     </main>
@@ -36,5 +54,50 @@
     <footer class="fade-in">
         <p>&copy; Israeli Privacy and Fairness Workshop</p>
     </footer>
+
+    <script>
+        // Load workshop content based on configuration
+        async function loadWorkshopContent() {
+            try {
+                const workshopInfo = getCurrentWorkshopInfo();
+                const headerContainer = document.getElementById('workshop-header');
+                const contentContainer = document.getElementById('workshop-content');
+                
+                // Update header with workshop info
+                let headerHTML = `<h2>Upcoming Workshop: ${workshopInfo.date}</h2>`;
+                headerHTML += `<p><strong>Location:</strong> ${workshopInfo.location}</p>`;
+                
+                if (workshopInfo.registrationUrl) {
+                    headerHTML += `<p><strong>Registration is now open!</strong></p>`;
+                    headerHTML += `<p><a href="${workshopInfo.registrationUrl}" target="_blank" rel="noopener noreferrer" class="btn">Register Now &rarr;</a></p>`;
+                }
+                
+                headerContainer.innerHTML = headerHTML;
+                
+                // Load appropriate content based on phase
+                const contentHTML = await loadComponent(WORKSHOP_CONFIG.currentPhase);
+                contentContainer.innerHTML = contentHTML;
+                
+                // If we loaded a schedule component, ensure scripts execute
+                if (WORKSHOP_CONFIG.currentPhase === 'schedule') {
+                    // Execute any scripts in the loaded content
+                    const scripts = contentContainer.querySelectorAll('script');
+                    scripts.forEach(script => {
+                        const newScript = document.createElement('script');
+                        newScript.textContent = script.textContent;
+                        document.head.appendChild(newScript);
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Error loading workshop content:', error);
+                document.getElementById('workshop-header').innerHTML = '<h2>Workshop Information Currently Unavailable</h2>';
+                document.getElementById('workshop-content').innerHTML = '<p>Please try again later.</p>';
+            }
+        }
+        
+        // Load content when page is ready
+        document.addEventListener('DOMContentLoaded', loadWorkshopContent);
+    </script>
 </body>
 </html> 

@@ -22,27 +22,7 @@
     </script>
     <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
-    <!-- Embedded CSV Data - Edit this section to update the schedule -->
-    <script id="schedule-data" type="text/plain">
-start_time,end_time,speaker,title,abstract,bio,expandable
-9:30,10:00,Registration,,,,FALSE
-10:00,10:10,Katrina Ligett,Opening remarks,,,FALSE
-10:10,11:00,Uri Stemmer,On Differentially Private Linear Algebra,,,TRUE
-11:00,11:25,Tom Waknine,Agnostic Learning under Targeted Poisoning,"We study the problem of learning in the presence of an adversary that can corrupt an $\eta$ fraction of the training examples with the goal of causing failure on a specific test point. In the realizable setting, prior work has established the optimal error under such instance-targeted poisoning attacks. In the agnostic setting, it is known that using deterministic learners, an adversary can force the error to be arbitrarily close to 1. Our result resolves this problem in the agnostic setting by allowing randomized learners. I will present the tight bounds we derive in this setting and highlight the critical role that randomness plays in achieving them. Time permitting, I will also sketch the proof approach and walk through an illustrative toy example.","Tom is a PhD student at the Technion under professor Shay Moran. His main research interests include learning theory, combinatorics, and probability theory. His primary focus is on studying the fundamental principles underlying the theoretical foundations of machine learning.",TRUE
-11:25,11:50,Odelia Melamed,Adversarial Examples - From Puzzling Experimental Findings to Theoretical Perspective and Applications,"The extreme fragility of deep neural networks, when presented with tiny perturbations in their inputs, was independently discovered by several research groups in 2013. However, despite enormous effort, these adversarial examples remained a counterintuitive phenomenon with no simple testable explanation. In this lecture, I will present a new conceptual framework for understanding adversarial examples through the lens of high-dimensional geometry, offering an intuitive mental image that aligns with empirical observations. We will then explore how this perspective translates into a simplified theoretical setting. Finally, I will demonstrate how this view can be used to analyze and simplify both adversarial attack strategies and robustness methods.","Odelia Melamed is a PhD student advised by Professor Adi Shamir at the department of Applied Mathematics and Computer Science, Weizmann Institute of Science, Israel. Her research interests include ML security, Adversarial Examples in Machine Learning, and Theoretical Machine Learning.",TRUE
-11:50,12:50,,Lunch,,,FALSE
-12:50,13:15,Guy Smorodinsky,Provable Privacy Attacks On Trained Shallow Neural Networks,"In recent years, neural networks have become deeply embedded in everyday applications, often trained on sensitive datasets such as financial or healthcare records. This widespread use raises critical concerns about data privacy, as malicious actors may attempt to extract information about the training data from a deployed model. A growing body of empirical work has demonstrated the feasibility of such attacks, including recent methods that exploit the fact that trained networks typically converge to a point satisfying a set of known constraints, enabling partial reconstruction of the training data. In this talk, I will present the first formal results showing that privacy attacks of this particular kind can provably succeed. In the first part, I will focus on data reconstruction attacks in a univariate setting, and in the second part, I will turn to membership inference attacks in high-dimensional scenarios. These results provide a theoretical foundation for understanding when and why privacy vulnerabilities arise in trained neural networks, highlighting the need for stronger privacy-preserving mechanisms.","Guy Smorodnisky is a Ph.D. student at Ben-Gurion University, supervised by Dr. Itay Safran. His research focuses on the theoretical foundations of deep learning, with a particular interest in privacy and security.",TRUE
-13:15,13:40,Sol Yarkoni,Low-Resource Reconstruction of Template-Memorized Images,"This talk reviews 'template memorization' in text-to-image diffusion models‚Äîa phenomenon where short textual prompts become coupled with image templates that are memorized up to a fixed region. Particular attention is given to the role of data scraped from e-commerce websites, which contributes disproportionately to this behavior due to the highly structured and repetitive nature of product imagery. The talk concludes with a low-resource reconstruction attack that extracts template-memorized images without requiring access to the training set, model internals or heavy compute. Notably, some of the recovered images include real, identifiable individuals, highlighting serious privacy concerns in widely used generative models.","Sol is a MSc student researching memorization in generative models. Before returning to academia, she worked as a data scientist specializing in computer vision, tackling a wide range of real-world challenges across various domains. Alongside her research, she is also a generative artist, exploring the creative potential of the same models she studies.",TRUE
-13:40,14:05,Elizaveta Nesterova,Reconstruction and Secrecy under Approximate Distance Queries,,,TRUE
-14:05,14:25,,Coffee break,,,FALSE
-14:25,14:50,Haneen Najjar,Disparity Robustness and Fairness,,,TRUE
-14:50,15:15,TBD,,,,TRUE
-15:15,15:40,Noga Amit,Worst-Case Guarantees in an Average-Case World,"How can we trust the correctness of a learned model on a particular input of interest? Model accuracy is typically measured on average over a distribution of inputs, giving no guarantee for any specific input. This talk introduces Self-Proving models, a new class of models that formally prove the correctness of their outputs via an Interactive Proof system. We will formally define Self-Proving models and their per-input (worst-case) guarantees. We will then present algorithms for learning these models and explain how the complexity of the proof system affects the complexity of the learning algorithms. Finally, we will review experiments in which Self-Proving Models are trained to compute the greatest common divisor (GCD) of two integers and prove their correctness to a simple verifier.","Noga is a PhD student at UC Berkeley, advised by Prof. Shafi Goldwasser and co-advised by Prof. Guy Rothblum, who was also her master's advisor at the Weizmann Institute. She completed her undergraduate studies at Tel Aviv University, earning a BSc in Math and Computer Science. Her research focuses on cryptography and machine learning.",TRUE
-15:40,16:00,,Coffee break,,,FALSE
-16:00,16:25,Aryeh Kontorovich,On the tensorization of the variational distance,"If one seeks to estimate the total variation between two product measures $||P^{\otimes_{1:n}}-Q^{\otimes_{1:n}}||$ in terms of their marginal TV sequence $\delta=(||P_1-Q_1||,||P_2-Q_2||,\ldots,||P_n-Q_n||)$, then trivial upper and lower bounds are provided by$ ||\delta||_\infty \le ||P^\otimes_{1:n}-Q^\otimes_{1:n}||\le||\delta||_1$. We improve the lower bound to $||\delta||_2\lesssim||P^\otimes_{1:n}-Q^\otimes_{1:n}||$, thereby reducing the gap between the upper and lower bounds from $\sim n$ to $\sim\sqrt{n} $. Furthermore, we show that {\em any} estimate on $||P^\otimes_{1:n}-Q^\otimes_{1:n}||$ expressed in terms of $\delta$ must necessarily exhibit a gap of $\sim\sqrt n$ between the upper and lower bounds in the worst case, establishing a sense in which our estimate is optimal. Finally, we identify a natural class of distributions for which $||\delta||_2$ approximates the TV distance up to absolute multiplicative constants.  This result has already found applications in private distribution learning. paper url https://projecteuclid.org/journals/electronic-communications-in-probability/volume-30/issue-none/On-the-tensorization-of-the-variational-distance/10.1214/25-ECP680.full ","Aryeh Kontorovich received his undergraduate degree in mathematics with a certificate in applied mathematics from Princeton University in 2001. His M.Sc. and Ph.D. are from Carnegie Mellon University, where he graduated in 2007. After a postdoctoral fellowship at the Weizmann Institute of Science, he joined the Computer Science department at Ben-Gurion University of the Negev in 2009, where he is currently a full professor. His research interests are mainly in machine learning, with a focus on probability, statistics, Markov chains, and metric spaces. He served as the director of the Ben-Gurion University Data Science Research Center during 2021-2022.",TRUE
-16:25,16:50,Yuval Dagan,Improved bounds for sequential calibration,,,TRUE
-16:50,17:00,Katrina Ligett,Closing remark,,,FALSE
-    </script>
+
 </head>
 <body>
     <header class="fade-in">
@@ -268,12 +248,16 @@ start_time,end_time,speaker,title,abstract,bio,expandable
             }
         }
 
-        // Load and display schedule from embedded CSV data
-        function loadSchedule() {
+        // Load and display schedule from external TXT file (CSV format)
+        async function loadSchedule() {
             console.log('loadSchedule function called');
             try {
-                // Get embedded CSV data from the script tag
-                const csvText = document.getElementById('schedule-data').textContent.trim();
+                const response = await fetch('schedule.csv');
+                if (!response.ok) {
+                    throw new Error(`Failed to load schedule: ${response.status}`);
+                }
+                
+                const csvText = await response.text();
                 console.log('CSV text retrieved, length:', csvText.length);
                 console.log('First 100 characters:', csvText.substring(0, 100));
                 
@@ -301,7 +285,7 @@ start_time,end_time,speaker,title,abstract,bio,expandable
             } catch (error) {
                 console.error('Error loading schedule:', error);
                 document.getElementById('schedule-container').innerHTML = 
-                    '<p>Schedule currently unavailable. Please check the embedded data and try again.</p>';
+                    '<p>Schedule currently unavailable. Please ensure the CSV file is accessible and try again later.</p>';
             }
         }
 

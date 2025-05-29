@@ -13,8 +13,9 @@
                 // Safely access properties with fallbacks
                 const speaker = (item.speaker || '').toString();
                 const title = (item.title || '').toString();
-                const abstract = (item.abstract || '').toString();
-                const bio = (item.bio || '').toString();
+                // Process \n escape sequences in abstract and bio to create real line breaks
+                const abstract = (item.abstract || '').toString().replace(/\\n/g, '<br>');
+                const bio = (item.bio || '').toString().replace(/\\n/g, '<br>');
                 const startTime = (item.start_time || '').toString();
                 const endTime = (item.end_time || '').toString();
                 const expandable = (item.expandable || '').toString();
@@ -116,7 +117,7 @@
         }
     }
 
-    // More robust CSV parser that handles quoted fields with commas
+    // More robust CSV parser that handles quoted fields with commas and escape sequences
     function parseCSV(text) {
         try {
             const result = [];
@@ -143,6 +144,7 @@
                             inQuotes = !inQuotes;
                         }
                     } else if (char === ',' && !inQuotes) {
+                        // Process the field when we hit a comma outside quotes
                         fields.push(current.trim());
                         current = '';
                     } else {

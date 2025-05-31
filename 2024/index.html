@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2024 Workshop - Israeli Privacy and Fairness Workshop</title>
     <link rel="stylesheet" href="../style.css"> <!-- Link to the main CSS file -->
+    
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     <header class="fade-in">
@@ -36,29 +52,9 @@
         <p><a href="https://idsai2024.net.technion.ac.il/registration/" target="_blank" rel="noopener noreferrer" class="btn">IDSci+AI 2024 Registration &rarr;</a></p>
 
         <h3>Schedule</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Speaker</th>
-                    <th>Title</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>10:00-10:40</td><td>Shay Moran</td><td>What Is The Sample Complexity of Differentially Private Learning?</td></tr>
-                <tr><td>10:40-10:55</td><td>Hilla Schefler</td><td>A General 'Private Learning Implies Online Learning' Theorem</td></tr>
-                <tr><td>10:55-11:10</td><td>Bogdan Chornomaz</td><td>Topological barrier to replicable learning</td></tr>
-                <tr><td>11:10-11:35</td><td colspan="2"><em>Coffee Break</em></td></tr>
-                <tr><td>11:35-12:15</td><td>Yishay Mansour</td><td>A Theory of Interpretable Approximations</td></tr>
-                <tr><td>12:15-12:30</td><td>Tal Herman</td><td>Verifying The Unseen: Interactive Proofs for Distribution Properties</td></tr>
-                <tr><td>12:30-12:45</td><td>Tomer Shoham</td><td>Differential privacy and hypothesis testing - from parametric testing to ECDFs</td></tr>
-                <tr><td>12:45-13:00</td><td>Moshe Shenfeld</td><td>Understanding Generalization via a Bayes Factor</td></tr>
-                <tr><td>13:00-14:20</td><td colspan="2"><em>Lunch</em></td></tr>
-                <tr><td>14:20-15:00</td><td>Edith Cohen</td><td>Hot PATE: Private Aggregation of Distributions for Diverse Tasks</td></tr>
-                <tr><td>15:00-15:20</td><td>Adi Haviv</td><td>Not Every Image is Worth a Thousand Words: Quantifying Originality in Stable Diffusion</td></tr>
-                <tr><td>15:20-16:00</td><td>Ran Canetti</td><td>Co-Designing the Pilot Release of Israel's National Registry of Live Births: Reconciling Privacy with Accuracy and Usability</td></tr>
-            </tbody>
-        </table>
+        <div id="schedule-container">
+            <p>Loading schedule... (JavaScript should replace this)</p>
+        </div>
 
         <h3>Organizers</h3>
         <p>Katrina Ligett and Moshe Shenfeld</p>
@@ -71,5 +67,45 @@
     <footer class="fade-in">
         <p>&copy; Israeli Privacy and Fairness Workshop</p>
     </footer>
+
+    <script src="../components/workshop-config.js"></script>
+    <script>
+        // Load schedule when page loads using the shared component system
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('Loading 2024 workshop schedule...');
+            try {
+                // Load the shared schedule component
+                const response = await fetch('../components/schedules/2024-schedule.html');
+                if (!response.ok) {
+                    throw new Error(`Failed to load schedule component: ${response.status}`);
+                }
+                
+                const scheduleHTML = await response.text();
+                
+                // Extract just the script content and container from the component
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = scheduleHTML;
+                
+                // Update the container with the component's container
+                const componentContainer = tempDiv.querySelector('#schedule-container');
+                if (componentContainer) {
+                    document.getElementById('schedule-container').innerHTML = componentContainer.innerHTML;
+                }
+                
+                // Execute the component's scripts
+                const scripts = tempDiv.querySelectorAll('script');
+                scripts.forEach(script => {
+                    const newScript = document.createElement('script');
+                    newScript.textContent = script.textContent;
+                    document.head.appendChild(newScript);
+                });
+                
+            } catch (error) {
+                console.error('Error loading schedule component:', error);
+                document.getElementById('schedule-container').innerHTML = 
+                    '<p>Schedule currently unavailable. Please try again later.</p>';
+            }
+        });
+    </script>
 </body>
 </html> 

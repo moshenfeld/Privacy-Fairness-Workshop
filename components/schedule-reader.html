@@ -1,4 +1,4 @@
-<!-- 2025 Workshop Schedule Component -->
+<!-- Universal Workshop Schedule Component -->
 <div id="schedule-container">
     <p>Loading schedule... (JavaScript should replace this)</p>
 </div>
@@ -180,49 +180,66 @@
         }
     }
 
-    // Determine the correct CSV path based on current page location
-    function getCSVPath() {
+    // Determine the correct CSV path based on year parameter
+    function getCSVPath(year) {
+        if (!year) {
+            console.error('Year parameter not provided to schedule reader');
+            return null;
+        }
+        
         const currentPath = window.location.pathname;
-        if (currentPath.includes('/2025/')) {
-            // We're on the 2025 page, so schedule.csv is in the same directory
+        if (currentPath.includes(`/${year}/`)) {
+            // We're on the specific year page, so schedule.csv is in the same directory
             return 'schedule.csv';
         } else {
-            // We're on the main page, so need to go into the 2025 directory
-            return '2025/schedule.csv';
+            // We're on another page, so need to go into the year directory
+            return `${year}/schedule.csv`;
         }
     }
 
     // Load schedule with retry mechanism
-    async function loadScheduleWithRetry(retryCount = 0, csvPath = null) {
+    async function loadScheduleWithRetry(year, retryCount = 0, csvPath = null) {
         if (!csvPath) {
-            csvPath = getCSVPath();
+            csvPath = getCSVPath(year);
+            if (!csvPath) {
+                const container = document.getElementById('schedule-container');
+                if (container) {
+                    container.innerHTML = '<p>Error: Year parameter not provided to schedule reader</p>';
+                }
+                return;
+            }
         }
+        
         const maxRetries = 3;
         try {
-            await loadSchedule(csvPath);
+            await loadSchedule(year, csvPath);
         } catch (error) {
             console.error(`Schedule load attempt ${retryCount + 1} failed:`, error);
             if (retryCount < maxRetries) {
                 console.log(`Retrying in ${(retryCount + 1) * 500}ms...`);
-                setTimeout(() => loadScheduleWithRetry(retryCount + 1, csvPath), (retryCount + 1) * 500);
+                setTimeout(() => loadScheduleWithRetry(year, retryCount + 1, csvPath), (retryCount + 1) * 500);
             } else {
                 console.error('All retry attempts failed');
                 const container = document.getElementById('schedule-container');
                 if (container) {
                     container.innerHTML = 
                         `<p>Schedule currently unavailable after ${maxRetries} attempts.</p>
-                         <p><button onclick="loadScheduleWithRetry(0, '${csvPath}')">Try Again</button></p>`;
+                         <p><button onclick="loadScheduleWithRetry('${year}', 0, '${csvPath}')">Try Again</button></p>`;
                 }
             }
         }
     }
 
     // Load and display schedule from external CSV file
-    async function loadSchedule(csvPath = null) {
+    async function loadSchedule(year, csvPath = null) {
         if (!csvPath) {
-            csvPath = getCSVPath();
+            csvPath = getCSVPath(year);
+            if (!csvPath) {
+                throw new Error('Year parameter not provided to schedule reader');
+            }
         }
-        console.log('=== loadSchedule function called ===');
+        
+        console.log(`=== loadSchedule function called for year ${year} ===`);
         console.log('CSV path:', csvPath);
         console.log('Document ready state:', document.readyState);
         console.log('MathJax available:', !!window.MathJax);
@@ -291,14 +308,24 @@
         }
     }
 
-    // Auto-load schedule when component is loaded
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOMContentLoaded event fired in schedule component');
-            loadScheduleWithRetry(0);
-        });
-    } else {
-        // DOM is already loaded
-        loadScheduleWithRetry(0);
+    // The year needs to be passed as a parameter through data attributes
+    const container = document.getElementById('schedule-container');
+    if (container) {
+        const year = container.getAttribute('data-year');
+        if (year) {
+            console.log(`Schedule container found with year: ${year}`);
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    console.log(`DOMContentLoaded event fired for year ${year}`);
+                    loadScheduleWithRetry(year, 0);
+                });
+            } else {
+                // DOM is already loaded
+                loadScheduleWithRetry(year, 0);
+            }
+        } else {
+            console.error('No year attribute found on schedule container');
+            container.innerHTML = '<p>Error: Year parameter not provided to schedule reader</p>';
+        }
     }
 </script>

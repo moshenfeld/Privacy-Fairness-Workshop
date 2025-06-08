@@ -52,7 +52,7 @@
         <p><a href="https://idsai2024.net.technion.ac.il/registration/" target="_blank" rel="noopener noreferrer" class="btn">IDSci+AI 2024 Registration &rarr;</a></p>
 
         <h3>Schedule</h3>
-        <div id="schedule-container">
+        <div id="schedule-container" data-year="2024">
             <p>Loading schedule... (JavaScript should replace this)</p>
         </div>
 
@@ -75,7 +75,7 @@
             console.log('Loading 2024 workshop schedule...');
             try {
                 // Load the shared schedule component
-                const response = await fetch('../components/schedules/2024-schedule.html');
+                const response = await fetch('../components/schedule-reader.html');
                 if (!response.ok) {
                     throw new Error(`Failed to load schedule component: ${response.status}`);
                 }

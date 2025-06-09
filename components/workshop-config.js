@@ -15,7 +15,7 @@ const WORKSHOP_CONFIG = {
     // Component paths
     components: {
         'call-for-talks': '2026/call-for-talks.html',
-        'schedule': 'components/schedules/2025-schedule.html'
+        'schedule': 'components/schedule-reader.html'
     },
     
     // Workshop details

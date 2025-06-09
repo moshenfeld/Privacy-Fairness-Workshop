@@ -9,9 +9,7 @@ This guide explains how to transition the workshop website between different pha
 ├── index.html                          # Main page (dynamic content)
 ├── components/
 │   ├── workshop-config.js              # Main configuration file
-│   └── schedules/
-│       ├── 2025-schedule.html          # Reusable 2025 schedule component
-│       └── 2026-schedule.html          # Future schedule component
+│   └── schedule-reader.html            # Universal schedule component
 ├── 2025/
 │   ├── index.html                      # 2025 dedicated page
 │   └── schedule.csv                    # 2025 schedule data (CSV format)
@@ -54,14 +52,10 @@ This guide explains how to transition the workshop website between different pha
 
 1. Create the schedule data:
    - Create `2026/schedule.csv` with the workshop program
-   - Copy and modify `components/schedules/2025-schedule.html` to `2026-schedule.html`
 
 2. Edit `components/workshop-config.js`:
    ```javascript
    currentPhase: 'schedule',
-   components: {
-       'schedule': 'components/schedules/2026-schedule.html'
-   },
    workshops: {
        2026: {
            // ...other details...

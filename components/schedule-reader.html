@@ -4,6 +4,14 @@
 </div>
 
 <script>
+    // Make these functions available in the global scope
+    window.createScheduleHTML = createScheduleHTML;
+    window.toggleDetails = toggleDetails;
+    window.parseCSV = parseCSV;
+    window.getCSVPath = getCSVPath;
+    window.loadScheduleWithRetry = loadScheduleWithRetry;
+    window.loadSchedule = loadSchedule;
+
     // Function to create schedule HTML with better error handling
     function createScheduleHTML(scheduleData) {
         try {
@@ -314,14 +322,22 @@
         const year = container.getAttribute('data-year');
         if (year) {
             console.log(`Schedule container found with year: ${year}`);
+            // Add these functions to the window object to make them globally available
+            window.createScheduleHTML = createScheduleHTML;
+            window.toggleDetails = toggleDetails;
+            window.parseCSV = parseCSV;
+            window.getCSVPath = getCSVPath;
+            window.loadScheduleWithRetry = loadScheduleWithRetry;
+            window.loadSchedule = loadSchedule;
+            
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', () => {
                     console.log(`DOMContentLoaded event fired for year ${year}`);
-                    loadScheduleWithRetry(year, 0);
+                    setTimeout(() => loadScheduleWithRetry(year, 0), 200);
                 });
             } else {
                 // DOM is already loaded
-                loadScheduleWithRetry(year, 0);
+                setTimeout(() => loadScheduleWithRetry(year, 0), 200);
             }
         } else {
             console.error('No year attribute found on schedule container');

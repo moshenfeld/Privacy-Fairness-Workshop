@@ -86,19 +86,54 @@
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = scheduleHTML;
                 
-                // Update the container with the component's container
+                // First preserve the data-year attribute
+                const originalYear = document.getElementById('schedule-container').getAttribute('data-year');
+                
+                // Update the container with the component's container content
                 const componentContainer = tempDiv.querySelector('#schedule-container');
                 if (componentContainer) {
                     document.getElementById('schedule-container').innerHTML = componentContainer.innerHTML;
+                    // Re-apply the data-year attribute that might have been lost
+                    document.getElementById('schedule-container').setAttribute('data-year', originalYear);
                 }
                 
                 // Execute the component's scripts
                 const scripts = tempDiv.querySelectorAll('script');
-                scripts.forEach(script => {
-                    const newScript = document.createElement('script');
-                    newScript.textContent = script.textContent;
-                    document.head.appendChild(newScript);
-                });
+                for (let i = 0; i < scripts.length; i++) {
+                    const script = scripts[i];
+                    // Create a Promise to make sure each script completes before the next one
+                    await new Promise((resolve) => {
+                        const newScript = document.createElement('script');
+                        newScript.textContent = script.textContent;
+                        // When the script is loaded, resolve the promise
+                        newScript.onload = resolve;
+                        // If there's an error, still resolve to continue
+                        newScript.onerror = resolve;
+                        document.head.appendChild(newScript);
+                        // Also resolve after a short timeout in case onload doesn't fire
+                        setTimeout(resolve, 100);
+                    });
+                }
+                
+                // Explicitly trigger the schedule loading
+                // This ensures the scripts have had time to load before attempting to load the schedule
+                setTimeout(() => {
+                    // Check if MathJax is loaded, if not wait for it
+                    const waitForMathJax = () => {
+                        if (window.MathJax) {
+                            const container = document.getElementById('schedule-container');
+                            const year = container.getAttribute('data-year');
+                            if (window.loadScheduleWithRetry && year) {
+                                console.log('Explicitly triggering loadScheduleWithRetry for year:', year);
+                                window.loadScheduleWithRetry(year, 0);
+                            }
+                        } else {
+                            console.log('Waiting for MathJax to load...');
+                            setTimeout(waitForMathJax, 100);
+                        }
+                    };
+                    waitForMathJax();
+                }, 300);
                 
             } catch (error) {
                 console.error('Error loading schedule component:', error);
